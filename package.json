@@ -1,0 +1,21 @@
+{
+  "name": "ftp-server",
+  "version": "1.0.0",
+  "description": "FTP Server with Web UI",
+  "main": "index.js",
+  "scripts": {
+    "backend": "cd backend && npm start",
+    "backend:dev": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm start",
+    "frontend:build": "cd frontend && npm run build",
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend\"",
+    "build": "npm run frontend:build && echo 'Build complete!'",
+    "setup": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
