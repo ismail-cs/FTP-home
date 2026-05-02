@@ -14,7 +14,7 @@ const UPLOAD_ROOT = '/home/ismail/Documents/FTP';
 // Logging middleware
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
-  if (req.method === 'POST' || req.method === 'PUT') {
+  if ((req.method === 'POST' || req.method === 'PUT') && req.body) {
     console.log('  Body:', JSON.stringify(req.body).substring(0, 200));
   }
   next();
