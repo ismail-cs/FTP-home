@@ -38,6 +38,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// 404 handler for API
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
 // Serve React frontend (only if build exists)
 const buildPath = path.join(__dirname, '../../frontend/build');
 const fs = require('fs');

@@ -54,6 +54,7 @@ router.post('/upload', upload.single('file'), (req, res) => {
           console.log(`   ❌ DB Error: ${err.message}`);
           return res.status(500).json({ error: 'Failed to save file metadata' });
         }
+        console.log(`   ✓ File ID: ${fileId}`);
         console.log(`   ✓ File metadata saved to DB\n`);
         res.json({
           success: true,
@@ -71,19 +72,38 @@ router.post('/upload', upload.single('file'), (req, res) => {
 });
 
 // Download file
-router.get('/download/:filename', (req, res) => {
-  const filename = req.params.filename;
+router.get('/download/:fileId', (req, res) => {
+  const fileId = req.params.fileId;
   const db = getDB();
 
-  db.get('SELECT path FROM files WHERE path LIKE ?', [`%${filename}`], (err, row) => {
-    if (err || !row) {
-      console.log(`❌ Download failed: File not found - ${filename}`);
+  console.log(`📥 Download Request for ID: ${fileId}`);
+
+  db.get('SELECT path, name FROM files WHERE id = ?', [fileId], (err, row) => {
+    if (err) {
+      console.log(`❌ DB Error: ${err.message}`);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    if (!row) {
+      console.log(`❌ File not found in DB for ID: ${fileId}`);
       return res.status(404).json({ error: 'File not found' });
     }
 
-    console.log(`⬇️  Download: ${row.path}`);
-    res.download(row.path, (err) => {
-      if (err) {
+    const filePath = row.path;
+    const fileName = row.name;
+
+    console.log(`   Path: ${filePath}`);
+    console.log(`   Name: ${fileName}`);
+
+    // Check if file exists on disk
+    if (!fs.existsSync(filePath)) {
+      console.log(`❌ File not found on disk: ${filePath}`);
+      return res.status(404).json({ error: 'File not found on disk' });
+    }
+
+    console.log(`✓ Sending file: ${fileName}`);
+    res.download(filePath, fileName, (err) => {
+      if (err && err.code !== 'ERR_HTTP_HEADERS_SENT') {
         console.log(`❌ Download error: ${err.message}`);
       }
     });
@@ -91,13 +111,13 @@ router.get('/download/:filename', (req, res) => {
 });
 
 // Delete file
-router.delete('/:filename', (req, res) => {
-  const filename = req.params.filename;
+router.delete('/:fileId', (req, res) => {
+  const fileId = req.params.fileId;
   const db = getDB();
 
-  db.get('SELECT path, id FROM files WHERE path LIKE ?', [`%${filename}`], (err, row) => {
+  db.get('SELECT path, id FROM files WHERE id = ?', [fileId], (err, row) => {
     if (err || !row) {
-      console.log(`❌ Delete failed: File not found - ${filename}`);
+      console.log(`❌ Delete failed: File not found - ${fileId}`);
       return res.status(404).json({ error: 'File not found' });
     }
 
@@ -112,7 +132,7 @@ router.delete('/:filename', (req, res) => {
           console.log(`❌ DB Delete error: ${err.message}`);
           return res.status(500).json({ error: 'Failed to remove file record' });
         }
-        console.log(`🗑️  Deleted: ${filename}\n`);
+        console.log(`🗑️  Deleted: ${row.path}\n`);
         res.json({ success: true });
       });
     });
