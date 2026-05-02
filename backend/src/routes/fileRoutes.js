@@ -124,7 +124,7 @@ router.get('/list/:folderId', (req, res) => {
   const folderId = req.params.folderId || 'root';
   const db = getDB();
 
-  db.all('SELECT id, name, size, uploaded_at FROM files WHERE folder_id = ? ORDER BY name',
+  db.all('SELECT id, name, size, path, uploaded_at FROM files WHERE folder_id = ? ORDER BY name',
     [folderId], (err, files) => {
       if (err) {
         console.log(`❌ List files error: ${err.message}`);
