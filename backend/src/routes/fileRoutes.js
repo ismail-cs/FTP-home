@@ -6,7 +6,7 @@ const { generateUUID } = require('../utils/uuid');
 const { getDB } = require('../db/database');
 
 const router = express.Router();
-const UPLOAD_ROOT = '/home/ismail/Documents/FTP';
+const UPLOAD_ROOT = '/media/ismail/WD/FTP';
 
 // Configure multer - save to temp first, then move to correct location
 const storage = multer.memoryStorage(); // Store in memory temporarily

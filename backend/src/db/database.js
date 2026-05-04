@@ -39,7 +39,7 @@ const initDB = () => {
     // Create root folder entry if not exists
     db.run(`
       INSERT OR IGNORE INTO folders (id, name, path, parent_id)
-      VALUES ('root', 'FTP', '/home/ismail/Documents/FTP', NULL)
+      VALUES ('root', 'FTP', '/media/ismail/WD/FTP', NULL)
     `);
   });
 };

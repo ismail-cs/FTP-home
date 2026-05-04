@@ -5,7 +5,7 @@ const { generateUUID } = require('../utils/uuid');
 const { getDB } = require('../db/database');
 
 const router = express.Router();
-const UPLOAD_ROOT = '/home/ismail/Documents/FTP';
+const UPLOAD_ROOT = '/media/ismail/WD/FTP';
 
 // Create folder
 router.post('/create', (req, res) => {

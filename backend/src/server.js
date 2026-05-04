@@ -9,7 +9,7 @@ const { initDB } = require('./db/database');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const UPLOAD_ROOT = '/home/ismail/Documents/FTP';
+const UPLOAD_ROOT = process.env.UPLOAD_ROOT || '/media/ismail/WD/FTP';
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -36,6 +36,36 @@ app.use('/api/folders', folderRoutes);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// Disk space info
+app.get('/api/disk-space', (req, res) => {
+  try {
+    const { execSync } = require('child_process');
+    const output = execSync(`df "${UPLOAD_ROOT}"`).toString();
+    const lines = output.trim().split('\n');
+    const data = lines[1].split(/\s+/);
+
+    const total = parseInt(data[1]) * 1024; // Convert from 1K-blocks to bytes
+    const used = parseInt(data[2]) * 1024;
+    const available = parseInt(data[3]) * 1024;
+    const percent = parseInt(data[4]);
+
+    console.log(`💾 Disk: ${percent}% used (${(used / 1024 / 1024 / 1024).toFixed(2)}GB / ${(total / 1024 / 1024 / 1024).toFixed(2)}GB)`);
+
+    res.json({
+      total,
+      used,
+      available,
+      percent,
+      totalGB: (total / 1024 / 1024 / 1024).toFixed(2),
+      usedGB: (used / 1024 / 1024 / 1024).toFixed(2),
+      availableGB: (available / 1024 / 1024 / 1024).toFixed(2)
+    });
+  } catch (err) {
+    console.error('❌ Disk space error:', err.message);
+    res.status(500).json({ error: 'Unable to read disk space' });
+  }
 });
 
 // 404 handler for API
